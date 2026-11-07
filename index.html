@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطاهري للصرافة والتحويلات | فرع شبوة - بيحان</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Amiri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,700;1,700&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navyDark: '#040d1e',
+                            navy: '#091c3e',
+                            navyLight: '#112b5a',
+                            gold: '#d4af37',
+                            goldLight: '#f3e5ab',
+                            goldDark: '#997d23',
+                            neonBlue: '#1e90ff'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #040d1e;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #fff7cc 0%, #e6ca65 40%, #b8860b 80%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15), inset 0 0 15px rgba(212, 175, 55, 0.08);
+        }
+
+        .neon-blue-glow {
+            box-shadow: 0 0 25px rgba(30, 144, 255, 0.35);
+        }
+
+        .marble-card {
+            background: radial-gradient(circle at 50% 50%, rgba(17, 43, 90, 0.7) 0%, rgba(9, 28, 62, 0.95) 100%),
+                        repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.03) 0px, rgba(212, 175, 55, 0.03) 2px, transparent 2px, transparent 8px);
+            backdrop-filter: blur(10px);
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .ticker-move {
+            display: inline-block;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(50%, 0, 0); }
+        }
+
+        #branch-map {
+            height: 380px;
+            width: 100%;
+            border-radius: 1rem;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-brand-navyDark text-slate-100 flex flex-col min-h-screen">
+
+    <!-- Top Info Bar -->
+    <div class="bg-brand-navy border-b border-brand-gold/20 text-xs py-2 px-4">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center space-x-reverse space-x-4">
+                <span class="flex items-center gap-1 text-brand-goldLight">
+                    <i class="fa-solid fa-location-dot text-brand-gold"></i> شبوة - بيحان القصاب
+                </span>
+                <span class="hidden md:inline-block text-slate-400">|</span>
+                <span class="hidden md:flex items-center gap-1 text-slate-300">
+                    <i class="fa-regular fa-clock text-brand-gold"></i> دوام متواصل: 8:00 ص - 10:00 م
+                </span>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="tel:777553655" class="hover:text-brand-gold transition flex items-center gap-1">
+                    <i class="fa-solid fa-phone text-brand-gold"></i> 777553655
+                </a>
+                <span>•</span>
+                <a href="tel:05270666" class="hover:text-brand-gold transition flex items-center gap-1">
+                    <i class="fa-solid fa-phone-volume text-brand-gold"></i> 05-270666
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currency Ticker -->
+    <div class="bg-brand-navyLight/70 border-b border-brand-gold/15 py-1.5 ticker-wrap text-sm">
+        <div class="ticker-move flex items-center space-x-reverse space-x-8 text-slate-200">
+            <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> <strong>ريال سعودي (SAR):</strong> شراء 535 | بيع 537</span>
+            <span>•</span>
+            <span class="flex items-center gap-2"><strong>دولار أمريكي (USD):</strong> شراء 2040 | بيع 2055</span>
+            <span>•</span>
+            <span class="flex items-center gap-2"><strong>درهم إماراتي (AED):</strong> شراء 550 | بيع 554</span>
+            <span>•</span>
+            <span class="flex items-center gap-2"><strong>ريال عماني (OMR):</strong> شراء 5280 | بيع 5310</span>
+            <span>•</span>
+            <span class="text-brand-gold">خدمة ويسترن يونيون، شبكة النجم، بنك الراجحي، بنك الإنماء، الأهلي SNB، وكويك متوفرة على مدار الساعة</span>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-50 bg-brand-navy/95 backdrop-blur-md border-b border-brand-gold/25 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+            
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-14 h-14 rounded-full bg-brand-navyDark p-1 border-2 border-brand-gold shadow-md flex items-center justify-center transition-transform group-hover:scale-105">
+                    <svg viewBox="0 0 200 200" class="w-11 h-11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M100 15 C135 15, 175 45, 175 95 C175 140, 140 185, 100 185 C60 185, 25 140, 25 95 C25 45, 65 15, 100 15 Z" stroke="#d4af37" stroke-width="4" fill="#091c3e"/>
+                        <path d="M100 35 L100 65 M90 45 C90 38 110 38 110 48 C110 58 90 58 90 68 C90 75 110 75 110 75" stroke="#f3e5ab" stroke-width="4" stroke-linecap="round"/>
+                        <text x="100" y="130" font-family="'Cairo', sans-serif" font-weight="900" font-size="34" fill="#f3e5ab" text-anchor="middle">الطاهري</text>
+                        <path d="M50 150 Q100 170 150 150" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-wide gold-gradient-text leading-tight">شركة الطاهري</h1>
+                    <p class="text-[11px] font-semibold text-slate-300">للصرافة والتحويلات المالية • بيحان</p>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-200">
+                <a href="#services" class="hover:text-brand-gold transition">خدماتنا</a>
+                <a href="#rates" class="hover:text-brand-gold transition">أسعار الصرف</a>
+                <a href="#track" class="hover:text-brand-gold transition">تتبع الحوالة</a>
+                <a href="#partners" class="hover:text-brand-gold transition">شركاؤنا</a>
+                <a href="#location" class="hover:text-brand-gold transition">موقع الفرع</a>
+                <a href="#contact" class="hover:text-brand-gold transition">اتصل بنا</a>
+            </nav>
+
+            <!-- Quick WhatsApp CTA -->
+            <div class="hidden sm:flex items-center gap-3">
+                <a href="https://wa.me/967777553655" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-all flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>تواصل معنا</span>
+                </a>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-2xl text-brand-gold p-2">
+                <i id="menu-icon" class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-navy border-b border-brand-gold/30 px-6 py-4 space-y-3 text-sm">
+            <a href="#services" class="block py-1 hover:text-brand-gold">خدماتنا</a>
+            <a href="#rates" class="block py-1 hover:text-brand-gold">أسعار الصرف والآلة الحاسبة</a>
+            <a href="#track" class="block py-1 hover:text-brand-gold">تتبع الحوالات</a>
+            <a href="#partners" class="block py-1 hover:text-brand-gold">شركاء التحويل المالي</a>
+            <a href="#location" class="block py-1 hover:text-brand-gold">موقع الفرع (شبوة بيحان)</a>
+            <a href="#contact" class="block py-1 hover:text-brand-gold">أرقام التواصل المعتمدة</a>
+            <a href="https://wa.me/967777553655" target="_blank" class="block text-center py-2 bg-emerald-600 text-white rounded-lg font-bold">
+                محادثة واتساب فورية
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative py-16 md:py-24 overflow-hidden border-b border-brand-gold/20">
+        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 28px 28px;"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-right">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-navyLight border border-brand-gold/40 text-xs font-bold text-brand-gold">
+                    <i class="fa-solid fa-shield-halved"></i> الثقة والأمان والسرعة في المعاملات المالية
+                </div>
+                <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                    وجهتكم الأولى <br>
+                    <span class="gold-gradient-text">للصرافة والتحويلات المالية</span>
+                </h2>
+                <p class="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                    نقدم خدمات مصرفية وصرافة موثوقة في شبوة بيحان بأفضل أسعار الصرف التنافسية وشبكات تحويل محلية ودولية تغطي كافة أرجاء العالم.
+                </p>
+
+                <!-- Phone Highlights -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
+                    <a href="tel:777553655" class="p-2.5 rounded-xl bg-brand-navy/80 border border-brand-gold/30 hover:border-brand-gold transition text-center">
+                        <p class="text-[10px] text-slate-400 font-bold">يمن موبايل</p>
+                        <p class="text-sm font-bold text-brand-goldLight">777553655</p>
+                    </a>
+                    <a href="tel:777150125" class="p-2.5 rounded-xl bg-brand-navy/80 border border-brand-gold/30 hover:border-brand-gold transition text-center">
+                        <p class="text-[10px] text-slate-400 font-bold">يمن موبايل</p>
+                        <p class="text-sm font-bold text-brand-goldLight">777150125</p>
+                    </a>
+                    <a href="tel:737553655" class="p-2.5 rounded-xl bg-brand-navy/80 border border-brand-gold/30 hover:border-brand-gold transition text-center">
+                        <p class="text-[10px] text-slate-400 font-bold">يو (MTN)</p>
+                        <p class="text-sm font-bold text-brand-goldLight">737553655</p>
+                    </a>
+                    <a href="tel:05270666" class="p-2.5 rounded-xl bg-brand-navy/80 border border-brand-gold/30 hover:border-brand-gold transition text-center">
+                        <p class="text-[10px] text-slate-400 font-bold">الهاتف الثابت</p>
+                        <p class="text-sm font-bold text-brand-goldLight">05-270666</p>
+                    </a>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+                    <a href="#rates" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-brand-navyDark font-black text-sm shadow-lg transition">
+                        <i class="fa-solid fa-calculator ml-1"></i> حاسبة أسعار العملات
+                    </a>
+                    <a href="#location" class="px-6 py-3.5 rounded-xl bg-brand-navyLight hover:bg-brand-navy border border-brand-gold/40 text-white font-bold text-sm transition">
+                        <i class="fa-solid fa-map-pin ml-1 text-brand-gold"></i> موقع الفرع بالخريطة
+                    </a>
+                </div>
+            </div>
+
+            <!-- Emblem Showcase Card -->
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="relative w-full max-w-md p-8 rounded-3xl marble-card gold-border-glow neon-blue-glow text-center">
+                    <div class="w-48 h-48 mx-auto mb-6 p-4 rounded-full bg-brand-navyDark/90 border-2 border-brand-gold shadow-2xl flex items-center justify-center">
+                        <svg viewBox="0 0 240 280" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Outer Elegant Ribbon -->
+                            <path d="M120 20 C180 20 220 70 210 130 C200 190 150 240 120 250 C90 240 40 190 30 130 C20 70 60 20 120 20 Z" stroke="#d4af37" stroke-width="4" fill="rgba(9, 28, 62, 0.6)"/>
+                            <!-- Dollar Symbol Top -->
+                            <circle cx="120" cy="70" r="28" fill="#112b5a" stroke="#f3e5ab" stroke-width="2"/>
+                            <text x="120" y="78" font-family="'Cairo', sans-serif" font-weight="900" font-size="28" fill="#ffd700" text-anchor="middle">$</text>
+                            <!-- Calligraphy Arabic Name -->
+                            <text x="120" y="165" font-family="'Amiri', serif" font-weight="700" font-size="44" fill="#ffffff" text-anchor="middle" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.8))">الطاهري</text>
+                            <text x="120" y="195" font-family="'Cairo', sans-serif" font-weight="700" font-size="14" fill="#e6ca65" text-anchor="middle">للصرافة والتحويلات</text>
+                            <rect x="50" y="215" width="140" height="22" rx="11" fill="#040d1e" stroke="#d4af37" stroke-width="1.5"/>
+                            <text x="120" y="230" font-family="'Cairo', sans-serif" font-weight="800" font-size="11" fill="#ffffff" text-anchor="middle">شبوة - بيحان</text>
+                        </svg>
+                    </div>
+
+                    <h3 class="text-xl font-black text-white">الهوية الرسمية المعتمدة</h3>
+                    <p class="text-xs text-brand-goldLight mt-1">فرع بيحان القصاب - شبوة</p>
+                    <div class="mt-4 pt-4 border-t border-brand-gold/20 flex justify-center gap-3">
+                        <span class="text-xs bg-brand-navy px-3 py-1 rounded-full border border-brand-gold/30 text-slate-300">
+                            Plus Code: RP29+M9R
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-16 bg-brand-navy/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-2xl sm:text-4xl font-black gold-gradient-text">خدماتنا المصرفية والمالية</h2>
+                <p class="text-slate-400 text-sm sm:text-base mt-2">حلول مالية متكاملة وسريعة تلبي احتياجات الأفراد والتجار</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Service 1 -->
+                <div class="p-6 rounded-2xl bg-brand-navy/90 border border-brand-gold/25 hover:border-brand-gold transition duration-300 hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-brand-gold flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">بيع وشراء كافة العملات</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        أسعار صرف دقيقة ولحظية للريال السعودي، الدولار الأمريكي، والعملات الخليجية والأجنبية بأعلى شفافية وأفضل الأسعار في السوق.
+                    </p>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="p-6 rounded-2xl bg-brand-navy/90 border border-brand-gold/25 hover:border-brand-gold transition duration-300 hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-globe"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">الحوالات الدولية والمحلية</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        إرسال واستلام الحوالات المالية عبر ويسترن يونيون وشبكات التحويل المعتمدة لجميع محافظات اليمن ودول الخليج والعالم بسرعة فائقة.
+                    </p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="p-6 rounded-2xl bg-brand-navy/90 border border-brand-gold/25 hover:border-brand-gold transition duration-300 hover:-translate-y-1 shadow-lg">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">تغذية الحسابات البنكية</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        ربط وتحويل مباشر مع البنوك السعودية واليمنية (مصرف الراجحي، بنك الإنماء، الأهلي السعودي SNB) لتسهيل المعاملات التجارية والعائلية.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rates & Interactive Calculator Section -->
+    <section id="rates" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Rates Table -->
+                <div class="lg:col-span-6 bg-brand-navy/90 p-6 rounded-3xl border border-brand-gold/30 shadow-xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-arrow-trend-up text-brand-gold"></i> أسعار الصرف الحالية
+                        </h3>
+                        <span class="text-xs bg-emerald-950 text-emerald-400 px-3 py-1 rounded-full border border-emerald-800">محدث الآن</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-brand-gold/20 pb-2">
+                                    <th class="py-3 px-2">العملة</th>
+                                    <th class="py-3 px-2 text-center">شراء</th>
+                                    <th class="py-3 px-2 text-center">بيع</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/80">
+                                <tr>
+                                    <td class="py-3.5 px-2 font-bold text-white flex items-center gap-2">
+                                        <span class="text-base">🇸🇦</span> ريال سعودي (SAR)
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-emerald-400">535.00</td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-amber-300">537.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-2 font-bold text-white flex items-center gap-2">
+                                        <span class="text-base">🇺🇸</span> دولار أمريكي (USD)
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-emerald-400">2,040.00</td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-amber-300">2,055.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-2 font-bold text-white flex items-center gap-2">
+                                        <span class="text-base">🇦🇪</span> درهم إماراتي (AED)
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-emerald-400">550.00</td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-amber-300">554.00</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3.5 px-2 font-bold text-white flex items-center gap-2">
+                                        <span class="text-base">🇴🇲</span> ريال عماني (OMR)
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-emerald-400">5,280.00</td>
+                                    <td class="py-3.5 px-2 text-center font-bold text-amber-300">5,310.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-4">* الأسعار قابلة للتغير وفق حركة التداول اليومية.</p>
+                </div>
+
+                <!-- Calculator -->
+                <div class="lg:col-span-6 bg-brand-navyLight/70 p-6 rounded-3xl border border-brand-gold/40 shadow-xl">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-brand-gold"></i> حاسبة تحويل العملات السريعة
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">المبلغ المراد تحويله</label>
+                            <input type="number" id="calc-amount" value="1000" class="w-full bg-brand-navyDark border border-brand-gold/30 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-brand-gold font-bold text-lg">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">من عملة</label>
+                                <select id="calc-from" class="w-full bg-brand-navyDark border border-brand-gold/30 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-gold text-sm font-semibold">
+                                    <option value="SAR" selected>ريال سعودي (SAR)</option>
+                                    <option value="USD">دولار أمريكي (USD)</option>
+                                    <option value="AED">درهم إماراتي (AED)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-300 mb-1">نوع العملية</label>
+                                <select id="calc-type" class="w-full bg-brand-navyDark border border-brand-gold/30 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-brand-gold text-sm font-semibold">
+                                    <option value="buy">شراء (استلام يمني)</option>
+                                    <option value="sell">بيع (تسليم يمني)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button id="calc-btn" class="w-full py-3 bg-brand-gold hover:bg-yellow-500 text-brand-navyDark font-black rounded-xl transition shadow-md">
+                            احسب المبلغ التقديري
+                        </button>
+
+                        <div class="p-4 rounded-xl bg-brand-navyDark border border-brand-gold/20 text-center">
+                            <span class="text-xs text-slate-400">الناتج التقديري بالريال اليمني:</span>
+                            <div id="calc-result" class="text-2xl font-black text-amber-300 mt-1">535,000 ر.ي</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Remittance Tracker Section -->
+    <section id="track" class="py-14 bg-brand-navy/60 border-y border-brand-gold/20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-2xl sm:text-3xl font-black gold-gradient-text mb-3">تتبع حالة الحوالة المالية</h2>
+            <p class="text-slate-300 text-sm mb-6">أدخل رقم الحوالة المرجعي للتحقق من جاهزيتها للاستلام من فرع بيحان</p>
+
+            <div class="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+                <input type="text" id="track-input" placeholder="أدخل رقم الحوالة هنا..." class="flex-grow bg-brand-navyDark border border-brand-gold/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-gold text-center text-sm font-semibold">
+                <button id="track-btn" class="px-6 py-3 bg-brand-navyLight border border-brand-gold hover:bg-brand-gold hover:text-brand-navyDark text-white font-bold rounded-xl transition text-sm">
+                    استعلام فوري
+                </button>
+            </div>
+            <div id="track-result" class="hidden mt-4 p-3 rounded-lg bg-emerald-950/80 border border-emerald-600/50 text-emerald-300 text-xs font-semibold max-w-xl mx-auto">
+                الحوالة مسجلة بنجاح وجاهزة للاستلام من كاونتر الفرع.
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section id="partners" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-200 mb-8">شبكات التحويل والبنوك المعتمدة</h2>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-amber-400 font-black text-sm">WESTERN UNION</span>
+                    <span class="text-[10px] text-slate-400 mt-1">ويسترن يونيون</span>
+                </div>
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-emerald-400 font-black text-sm">AL RAJHI</span>
+                    <span class="text-[10px] text-slate-400 mt-1">مصرف الراجحي</span>
+                </div>
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-emerald-500 font-black text-sm">SNB</span>
+                    <span class="text-[10px] text-slate-400 mt-1">البنك الأهلي السعودي</span>
+                </div>
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-blue-400 font-black text-sm">ALINMA</span>
+                    <span class="text-[10px] text-slate-400 mt-1">مصرف الإنماء</span>
+                </div>
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-red-400 font-black text-sm">النجم للحوالات</span>
+                    <span class="text-[10px] text-slate-400 mt-1">شبكة النجم إكسبرس</span>
+                </div>
+                <div class="p-4 rounded-xl bg-brand-navy/90 border border-brand-gold/20 flex flex-col items-center justify-center">
+                    <span class="text-yellow-400 font-black text-sm">QUICK</span>
+                    <span class="text-[10px] text-slate-400 mt-1">كويك للتحويل</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Branch Location Map Section -->
+    <section id="location" class="py-16 bg-brand-navy/40 border-t border-brand-gold/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="px-3 py-1 rounded-full bg-brand-navy border border-brand-gold/30 text-xs font-bold text-brand-gold">
+                    الوصول للفرع
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-black text-white mt-2">موقع الفرع في شبوة بيحان</h2>
+                <p class="text-slate-400 text-sm mt-1">زورونا في مقرنا الرئيسي المجهز بأحدث وسائل الراحة والخدمة السريعة</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <!-- Map Container -->
+                <div class="lg:col-span-8">
+                    <div class="p-2 rounded-2xl bg-brand-navy border border-brand-gold/30 shadow-2xl">
+                        <div id="branch-map"></div>
+                    </div>
+                </div>
+
+                <!-- Location Details & Action -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="p-6 rounded-2xl bg-brand-navy/90 border border-brand-gold/30 shadow-xl space-y-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-map-location-dot text-brand-gold text-2xl mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-white text-base">العنوان بالتفصيل</h4>
+                                <p class="text-slate-300 text-sm mt-0.5">محافظة شبوة - بيحان القصاب - الشارع العام</p>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-brand-navyDark border border-brand-gold/20">
+                            <span class="text-[11px] text-slate-400 block mb-1">الرمز الجغرافي المباشر (Google Plus Code):</span>
+                            <code class="text-amber-300 font-mono font-bold text-sm select-all">RP29+M9R, Bayhan al Qisab, Yemen</code>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <a href="https://www.google.com/maps/search/?api=1&query=RP29%2BM9R%2C+Bayhan+al+Qisab%2C+Yemen" target="_blank" class="w-full py-3 bg-brand-gold hover:bg-yellow-500 text-brand-navyDark font-black rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-md">
+                                <i class="fa-solid fa-diamond-turn-right"></i> فتح الموقع في خرائط Google
+                            </a>
+                            <a href="https://wa.me/967777553655?text=السلام+عليكم،+أرجو+إرسال+الموقع+الجغرافي+للفرع" target="_blank" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-xs">
+                                <i class="fa-brands fa-whatsapp"></i> طلب مشاركة الموقع عبر واتساب
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-2xl sm:text-4xl font-black gold-gradient-text">تواصل مباشر مع إدارة الفرع</h2>
+                <p class="text-slate-400 text-sm mt-2">فريق خدمة العملاء جاهز للرد على كافة استفساراتكم على مدار الساعة</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Phone 1 -->
+                <div class="p-5 rounded-2xl bg-brand-navy/90 border border-brand-gold/30 text-center hover:border-brand-gold transition shadow-md">
+                    <span class="text-xs text-brand-gold font-bold">رقم الاتصال المعتمد 1</span>
+                    <h4 class="text-xl font-black text-white my-2">777553655</h4>
+                    <p class="text-xs text-slate-400 mb-4">يمن موبايل (مكالمات + واتساب)</p>
+                    <div class="flex gap-2">
+                        <a href="tel:777553655" class="flex-1 py-2 bg-brand-navyLight hover:bg-brand-gold hover:text-brand-navyDark rounded-lg text-xs font-bold transition">اتصال</a>
+                        <a href="https://wa.me/967777553655" target="_blank" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">واتساب</a>
+                    </div>
+                </div>
+
+                <!-- Phone 2 -->
+                <div class="p-5 rounded-2xl bg-brand-navy/90 border border-brand-gold/30 text-center hover:border-brand-gold transition shadow-md">
+                    <span class="text-xs text-brand-gold font-bold">رقم الاتصال المعتمد 2</span>
+                    <h4 class="text-xl font-black text-white my-2">777150125</h4>
+                    <p class="text-xs text-slate-400 mb-4">يمن موبايل (مكالمات + واتساب)</p>
+                    <div class="flex gap-2">
+                        <a href="tel:777150125" class="flex-1 py-2 bg-brand-navyLight hover:bg-brand-gold hover:text-brand-navyDark rounded-lg text-xs font-bold transition">اتصال</a>
+                        <a href="https://wa.me/967777150125" target="_blank" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">واتساب</a>
+                    </div>
+                </div>
+
+                <!-- Phone 3 -->
+                <div class="p-5 rounded-2xl bg-brand-navy/90 border border-brand-gold/30 text-center hover:border-brand-gold transition shadow-md">
+                    <span class="text-xs text-brand-gold font-bold">رقم الاتصال المعتمد 3</span>
+                    <h4 class="text-xl font-black text-white my-2">737553655</h4>
+                    <p class="text-xs text-slate-400 mb-4">يو MTN (مكالمات + واتساب)</p>
+                    <div class="flex gap-2">
+                        <a href="tel:737553655" class="flex-1 py-2 bg-brand-navyLight hover:bg-brand-gold hover:text-brand-navyDark rounded-lg text-xs font-bold transition">اتصال</a>
+                        <a href="https://wa.me/967737553655" target="_blank" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition">واتساب</a>
+                    </div>
+                </div>
+
+                <!-- Phone 4 -->
+                <div class="p-5 rounded-2xl bg-brand-navy/90 border border-brand-gold/30 text-center hover:border-brand-gold transition shadow-md">
+                    <span class="text-xs text-brand-gold font-bold">هاتف الفرع الثابت</span>
+                    <h4 class="text-xl font-black text-white my-2">05-270666</h4>
+                    <p class="text-xs text-slate-400 mb-4">فرع بيحان القصاب</p>
+                    <div>
+                        <a href="tel:05270666" class="block w-full py-2 bg-brand-navyLight hover:bg-brand-gold hover:text-brand-navyDark rounded-lg text-xs font-bold transition">اتصال فوري بالهاتف</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-auto bg-brand-navyDark border-t border-brand-gold/20 pt-8 pb-6 text-slate-400 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+            <div class="flex justify-center items-center gap-2">
+                <span class="font-bold text-white">الطاهري للصرافة والتحويلات</span>
+                <span>•</span>
+                <span>بيحان القصاب - محافظة شبوة - اليمن</span>
+            </div>
+            <p>جميع الحقوق محفوظة &copy; <span id="current-year">2026</span> شركة الطاهري للصرافة والتحويلات.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS & Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Set Year
+        const yrEl = document.getElementById('current-year');
+        if (yrEl) yrEl.textContent = new Date().getFullYear();
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+
+        if (menuBtn && mobileMenu && menuIcon) {
+            menuBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileMenu.classList.remove('hidden');
+                    menuIcon.classList.remove('fa-bars');
+                    menuIcon.classList.add('fa-xmark');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    menuIcon.classList.remove('fa-xmark');
+                    menuIcon.classList.add('fa-bars');
+                }
+            });
+        }
+
+        // Initialize Map for Bayhan al Qisab (Coordinates: ~14.8055, 45.7360)
+        document.addEventListener('DOMContentLoaded', () => {
+            const mapContainer = document.getElementById('branch-map');
+            if (mapContainer) {
+                const bayhanCoords = [14.8055, 45.7360];
+                const map = L.map('branch-map').setView(bayhanCoords, 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Custom marker icon
+                const goldIcon = L.divIcon({
+                    className: 'custom-pin',
+                    html: `<div style="background-color: #d4af37; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #040d1e; box-shadow: 0 0 10px #d4af37;"></div>`,
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11]
+                });
+
+                L.marker(bayhanCoords, { icon: goldIcon }).addTo(map)
+                    .bindPopup("<b>الطاهري للصرافة والتحويلات</b><br>فرع شبوة - بيحان القصاب<br>رمز: RP29+M9R")
+                    .openPopup();
+            }
+        });
+
+        // Currency Calculator Logic
+        const calcAmount = document.getElementById('calc-amount');
+        const calcFrom = document.getElementById('calc-from');
+        const calcType = document.getElementById('calc-type');
+        const calcBtn = document.getElementById('calc-btn');
+        const calcResult = document.getElementById('calc-result');
+
+        const rates = {
+            SAR: { buy: 535.0, sell: 537.0 },
+            USD: { buy: 2040.0, sell: 2055.0 },
+            AED: { buy: 550.0, sell: 554.0 }
+        };
+
+        function calculate() {
+            if (!calcAmount || !calcFrom || !calcType || !calcResult) return;
+            const amount = parseFloat(calcAmount.value) || 0;
+            const curr = calcFrom.value;
+            const type = calcType.value;
+            const rate = rates[curr][type];
+            const total = (amount * rate).toLocaleString('en-US', { maximumFractionDigits: 2 });
+            calcResult.textContent = `${total} ر.ي`;
+        }
+
+        if (calcBtn) calcBtn.addEventListener('click', calculate);
+        if (calcAmount) calcAmount.addEventListener('input', calculate);
+        if (calcFrom) calcFrom.addEventListener('change', calculate);
+        if (calcType) calcType.addEventListener('change', calculate);
+
+        // Remittance Tracker Simulation
+        const trackBtn = document.getElementById('track-btn');
+        const trackInput = document.getElementById('track-input');
+        const trackResult = document.getElementById('track-result');
+
+        if (trackBtn && trackInput && trackResult) {
+            trackBtn.addEventListener('click', () => {
+                if (trackInput.value.trim() !== '') {
+                    trackResult.classList.remove('hidden');
+                } else {
+                    alert('يرجى كتابة رقم الحوالة أولاً');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
